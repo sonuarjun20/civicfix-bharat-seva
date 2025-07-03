@@ -9,7 +9,199 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      issues: {
+        Row: {
+          address: string | null
+          assigned_to: string | null
+          city: string | null
+          created_at: string
+          description: string
+          id: string
+          issue_type: Database["public"]["Enums"]["issue_type"]
+          latitude: number
+          longitude: number
+          media_urls: string[] | null
+          priority: number | null
+          resolution_media_urls: string[] | null
+          resolution_notes: string | null
+          resolved_at: string | null
+          state: string | null
+          status: Database["public"]["Enums"]["issue_status"]
+          title: string
+          updated_at: string
+          user_id: string
+          ward: string | null
+        }
+        Insert: {
+          address?: string | null
+          assigned_to?: string | null
+          city?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          issue_type: Database["public"]["Enums"]["issue_type"]
+          latitude: number
+          longitude: number
+          media_urls?: string[] | null
+          priority?: number | null
+          resolution_media_urls?: string[] | null
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          state?: string | null
+          status?: Database["public"]["Enums"]["issue_status"]
+          title: string
+          updated_at?: string
+          user_id: string
+          ward?: string | null
+        }
+        Update: {
+          address?: string | null
+          assigned_to?: string | null
+          city?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          issue_type?: Database["public"]["Enums"]["issue_type"]
+          latitude?: number
+          longitude?: number
+          media_urls?: string[] | null
+          priority?: number | null
+          resolution_media_urls?: string[] | null
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          state?: string | null
+          status?: Database["public"]["Enums"]["issue_status"]
+          title?: string
+          updated_at?: string
+          user_id?: string
+          ward?: string | null
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          is_read: boolean | null
+          issue_id: string | null
+          message: string
+          notification_type: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          issue_id?: string | null
+          message: string
+          notification_type?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          issue_id?: string | null
+          message?: string
+          notification_type?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_issue_id_fkey"
+            columns: ["issue_id"]
+            isOneToOne: false
+            referencedRelation: "issues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          area: string | null
+          city: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          is_anonymous: boolean | null
+          is_verified: boolean | null
+          phone: string | null
+          role: Database["public"]["Enums"]["user_role"]
+          state: string | null
+          updated_at: string
+          user_id: string
+          ward: string | null
+        }
+        Insert: {
+          area?: string | null
+          city?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          is_anonymous?: boolean | null
+          is_verified?: boolean | null
+          phone?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          state?: string | null
+          updated_at?: string
+          user_id: string
+          ward?: string | null
+        }
+        Update: {
+          area?: string | null
+          city?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          is_anonymous?: boolean | null
+          is_verified?: boolean | null
+          phone?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          state?: string | null
+          updated_at?: string
+          user_id?: string
+          ward?: string | null
+        }
+        Relationships: []
+      }
+      reviews: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          issue_id: string
+          rating: number
+          user_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          issue_id: string
+          rating: number
+          user_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          issue_id?: string
+          rating?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_issue_id_fkey"
+            columns: ["issue_id"]
+            isOneToOne: false
+            referencedRelation: "issues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -18,7 +210,21 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      issue_status:
+        | "pending"
+        | "assigned"
+        | "in_progress"
+        | "resolved"
+        | "closed"
+      issue_type:
+        | "road"
+        | "water"
+        | "electricity"
+        | "garbage"
+        | "streetlight"
+        | "sewage"
+        | "other"
+      user_role: "citizen" | "official"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -133,6 +339,24 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      issue_status: [
+        "pending",
+        "assigned",
+        "in_progress",
+        "resolved",
+        "closed",
+      ],
+      issue_type: [
+        "road",
+        "water",
+        "electricity",
+        "garbage",
+        "streetlight",
+        "sewage",
+        "other",
+      ],
+      user_role: ["citizen", "official"],
+    },
   },
 } as const
