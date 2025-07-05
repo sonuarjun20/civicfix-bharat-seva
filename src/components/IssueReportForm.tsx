@@ -21,6 +21,12 @@ const issueSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters'),
   description: z.string().min(20, 'Description must be at least 20 characters'),
   issue_type: z.enum(['road', 'water', 'electricity', 'garbage', 'streetlight', 'sewage', 'other']),
+  address: z.string().optional(),
+  area: z.string().min(2, 'Area is required'),
+  city: z.string().min(2, 'City is required'),
+  state: z.string().min(2, 'State is required'),
+  pincode: z.string().regex(/^\d{6}$/, 'Pincode must be 6 digits'),
+  ward: z.string().optional(),
   media_files: z.any().optional(),
 });
 
@@ -30,8 +36,10 @@ interface LocationData {
   latitude: number;
   longitude: number;
   address?: string;
+  area?: string;
   city?: string;
   state?: string;
+  pincode?: string;
   ward?: string;
 }
 
@@ -46,9 +54,11 @@ export const IssueReportForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
 
-  const { register, handleSubmit, setValue, formState: { errors } } = useForm<IssueFormData>({
+  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<IssueFormData>({
     resolver: zodResolver(issueSchema)
   });
+
+  const watchedLocation = watch(['address', 'area', 'city', 'state', 'pincode', 'ward']);
 
   // Initialize map
   useEffect(() => {
@@ -125,10 +135,20 @@ export const IssueReportForm = () => {
         latitude: lat,
         longitude: lng,
         address: `${lat.toFixed(6)}, ${lng.toFixed(6)}`,
+        area: 'Area Name', // This would come from reverse geocoding
         city: 'Delhi', // This would come from reverse geocoding
         state: 'Delhi',
+        pincode: '110001', // This would come from reverse geocoding
         ward: 'Ward 1' // This would come from reverse geocoding
       };
+      
+      // Update form fields with geocoded data
+      setValue('address', locationData.address);
+      setValue('area', locationData.area!);
+      setValue('city', locationData.city!);
+      setValue('state', locationData.state!);
+      setValue('pincode', locationData.pincode!);
+      setValue('ward', locationData.ward!);
       
       setLocation(locationData);
     } catch (error) {
@@ -189,10 +209,10 @@ export const IssueReportForm = () => {
           issue_type: data.issue_type,
           latitude: location.latitude,
           longitude: location.longitude,
-          address: location.address,
-          city: location.city,
-          state: location.state,
-          ward: location.ward,
+          address: data.address || location.address,
+          city: data.city,
+          state: data.state,
+          ward: data.ward,
           media_urls: mediaUrls,
           user_id: user.id
         });
@@ -305,11 +325,85 @@ export const IssueReportForm = () => {
                 className="h-64 w-full rounded-lg border border-govt-blue/20"
               />
               
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="address">Address</Label>
+                  <Input
+                    id="address"
+                    {...register('address')}
+                    placeholder="Street address"
+                    className="border-govt-blue/20"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="area">Area *</Label>
+                  <Input
+                    id="area"
+                    {...register('area')}
+                    placeholder="Area/Locality"
+                    className="border-govt-blue/20"
+                  />
+                  {errors.area && (
+                    <p className="text-destructive text-sm">{errors.area.message}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="city">City *</Label>
+                  <Input
+                    id="city"
+                    {...register('city')}
+                    placeholder="City"
+                    className="border-govt-blue/20"
+                  />
+                  {errors.city && (
+                    <p className="text-destructive text-sm">{errors.city.message}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="state">State *</Label>
+                  <Input
+                    id="state"
+                    {...register('state')}
+                    placeholder="State"
+                    className="border-govt-blue/20"
+                  />
+                  {errors.state && (
+                    <p className="text-destructive text-sm">{errors.state.message}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="pincode">Pincode *</Label>
+                  <Input
+                    id="pincode"
+                    {...register('pincode')}
+                    placeholder="6-digit pincode"
+                    maxLength={6}
+                    className="border-govt-blue/20"
+                  />
+                  {errors.pincode && (
+                    <p className="text-destructive text-sm">{errors.pincode.message}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="ward">Ward/Zone</Label>
+                  <Input
+                    id="ward"
+                    {...register('ward')}
+                    placeholder="Ward or Zone"
+                    className="border-govt-blue/20"
+                  />
+                </div>
+              </div>
+              
               {location && (
                 <div className="text-sm text-muted-foreground bg-govt-blue/5 p-3 rounded">
-                  <p><strong>Address:</strong> {location.address}</p>
-                  <p><strong>City:</strong> {location.city}</p>
-                  <p><strong>Ward:</strong> {location.ward}</p>
+                  <p><strong>Selected Coordinates:</strong> {location.latitude.toFixed(6)}, {location.longitude.toFixed(6)}</p>
+                  <p className="text-xs mt-1">You can click on the map to change the location or fill the address manually</p>
                 </div>
               )}
             </div>
@@ -360,7 +454,7 @@ export const IssueReportForm = () => {
             {/* Submit Button */}
             <Button
               type="submit"
-              disabled={isSubmitting || !location}
+              disabled={isSubmitting}
               className="w-full bg-govt-saffron hover:bg-govt-saffron/90 text-white"
             >
               {isSubmitting ? (
