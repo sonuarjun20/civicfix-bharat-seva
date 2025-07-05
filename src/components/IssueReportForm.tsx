@@ -201,7 +201,7 @@ export const IssueReportForm = () => {
       }
 
       // Insert issue into database
-      const { error } = await supabase
+      const { data: newIssue, error } = await supabase
         .from('issues')
         .insert({
           title: data.title,
@@ -215,9 +215,35 @@ export const IssueReportForm = () => {
           ward: data.ward,
           media_urls: mediaUrls,
           user_id: user.id
-        });
+        })
+        .select()
+        .single();
 
       if (error) throw error;
+
+      // Notify officials in the area
+      try {
+        const { data: notificationResult, error } = await supabase.functions.invoke('notify-officials', {
+          body: {
+            issueId: newIssue.id,
+            issueTitle: data.title,
+            issueType: data.issue_type,
+            location: {
+              city: data.city,
+              state: data.state,
+              ward: data.ward,
+              area: data.area
+            }
+          }
+        });
+        
+        if (error) {
+          console.error('Failed to notify officials:', error);
+        }
+      } catch (notificationError) {
+        console.error('Failed to notify officials:', notificationError);
+        // Don't fail the entire request if notification fails
+      }
 
       toast({
         title: "Issue reported successfully!",
@@ -228,6 +254,16 @@ export const IssueReportForm = () => {
       setLocation(null);
       setMediaFiles([]);
       if (marker.current) marker.current.remove();
+      
+      // Reset form fields
+      setValue('title', '');
+      setValue('description', '');
+      setValue('address', '');
+      setValue('area', '');
+      setValue('city', '');
+      setValue('state', '');
+      setValue('pincode', '');
+      setValue('ward', '');
 
     } catch (error) {
       console.error('Error submitting issue:', error);
