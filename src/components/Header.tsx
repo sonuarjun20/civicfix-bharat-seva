@@ -1,7 +1,17 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/components/AuthProvider";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { User, Settings, LogOut } from "lucide-react";
 
 export const Header = () => {
+  const { user, userRole, signOut } = useAuth();
+
   return (
     <>
       <div className="tricolor-bar"></div>
@@ -34,12 +44,45 @@ export const Header = () => {
             </nav>
 
             <div className="flex items-center space-x-3">
-              <Button variant="outline" asChild>
-                <Link to="/auth">Login</Link>
-              </Button>
-              <Button asChild>
-                <Link to="/report">Report Issue</Link>
-              </Button>
+              {user ? (
+                <>
+                  {userRole === 'official' && (
+                    <Button variant="outline" asChild>
+                      <Link to="/dashboard">Dashboard</Link>
+                    </Button>
+                  )}
+                  {userRole === 'citizen' && (
+                    <Button variant="outline" asChild>
+                      <Link to="/track">My Issues</Link>
+                    </Button>
+                  )}
+                  <Button asChild>
+                    <Link to="/report">Report Issue</Link>
+                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <User className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => signOut()}>
+                        <LogOut className="mr-2 h-4 w-4" />
+                        Sign out
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </>
+              ) : (
+                <>
+                  <Button variant="outline" asChild>
+                    <Link to="/auth">Login</Link>
+                  </Button>
+                  <Button asChild>
+                    <Link to="/report">Report Issue</Link>
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>
