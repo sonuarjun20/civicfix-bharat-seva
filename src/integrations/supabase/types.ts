@@ -12,21 +12,25 @@ export type Database = {
       issues: {
         Row: {
           address: string | null
+          assigned_official_id: string | null
           assigned_to: string | null
           city: string | null
           created_at: string
           description: string
+          district: string | null
           id: string
           issue_type: Database["public"]["Enums"]["issue_type"]
           latitude: number
           longitude: number
           media_urls: string[] | null
+          pincode: string | null
           priority: number | null
           resolution_media_urls: string[] | null
           resolution_notes: string | null
           resolved_at: string | null
           state: string | null
           status: Database["public"]["Enums"]["issue_status"]
+          suggested_official_id: string | null
           title: string
           updated_at: string
           user_id: string
@@ -34,21 +38,25 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          assigned_official_id?: string | null
           assigned_to?: string | null
           city?: string | null
           created_at?: string
           description: string
+          district?: string | null
           id?: string
           issue_type: Database["public"]["Enums"]["issue_type"]
           latitude: number
           longitude: number
           media_urls?: string[] | null
+          pincode?: string | null
           priority?: number | null
           resolution_media_urls?: string[] | null
           resolution_notes?: string | null
           resolved_at?: string | null
           state?: string | null
           status?: Database["public"]["Enums"]["issue_status"]
+          suggested_official_id?: string | null
           title: string
           updated_at?: string
           user_id: string
@@ -56,21 +64,25 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          assigned_official_id?: string | null
           assigned_to?: string | null
           city?: string | null
           created_at?: string
           description?: string
+          district?: string | null
           id?: string
           issue_type?: Database["public"]["Enums"]["issue_type"]
           latitude?: number
           longitude?: number
           media_urls?: string[] | null
+          pincode?: string | null
           priority?: number | null
           resolution_media_urls?: string[] | null
           resolution_notes?: string | null
           resolved_at?: string | null
           state?: string | null
           status?: Database["public"]["Enums"]["issue_status"]
+          suggested_official_id?: string | null
           title?: string
           updated_at?: string
           user_id?: string
@@ -124,11 +136,14 @@ export type Database = {
           area: string | null
           city: string | null
           created_at: string
+          district: string | null
           full_name: string | null
+          geo_bounds: Json | null
           id: string
           is_anonymous: boolean | null
           is_verified: boolean | null
           phone: string | null
+          pincode: string | null
           role: Database["public"]["Enums"]["user_role"]
           state: string | null
           updated_at: string
@@ -139,11 +154,14 @@ export type Database = {
           area?: string | null
           city?: string | null
           created_at?: string
+          district?: string | null
           full_name?: string | null
+          geo_bounds?: Json | null
           id?: string
           is_anonymous?: boolean | null
           is_verified?: boolean | null
           phone?: string | null
+          pincode?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           state?: string | null
           updated_at?: string
@@ -154,11 +172,14 @@ export type Database = {
           area?: string | null
           city?: string | null
           created_at?: string
+          district?: string | null
           full_name?: string | null
+          geo_bounds?: Json | null
           id?: string
           is_anonymous?: boolean | null
           is_verified?: boolean | null
           phone?: string | null
+          pincode?: string | null
           role?: Database["public"]["Enums"]["user_role"]
           state?: string | null
           updated_at?: string
