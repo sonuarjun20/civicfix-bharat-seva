@@ -20,6 +20,10 @@ const Auth = () => {
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [role, setRole] = useState<"citizen" | "official">("citizen");
+  const [officialRole, setOfficialRole] = useState<"MLA" | "Ward Officer" | "Panchayat Secretary">("Ward Officer");
+  const [district, setDistrict] = useState("");
+  const [ward, setWard] = useState("");
+  const [state, setState] = useState("");
 
   if (user) {
     return <Navigate to="/" replace />;
@@ -30,6 +34,29 @@ const Auth = () => {
     setLoading(true);
 
     try {
+      // If signing up as official, verify credentials first
+      if (role === "official") {
+        const { data: verifiedOfficial, error: verifyError } = await supabase
+          .from('verified_officials')
+          .select('*')
+          .eq('email', email)
+          .eq('phone', phone)
+          .eq('is_active', true)
+          .single();
+
+        if (verifyError || !verifiedOfficial) {
+          throw new Error("We couldn't verify your identity. Please use your official contact details.");
+        }
+
+        // Check if provided details match
+        if (verifiedOfficial.role !== officialRole || 
+            verifiedOfficial.district !== district ||
+            verifiedOfficial.state !== state ||
+            verifiedOfficial.ward !== ward) {
+          throw new Error("The provided details don't match our records. Please verify your information.");
+        }
+      }
+
       const { error } = await supabase.auth.signUp({
         email,
         password,
@@ -39,6 +66,12 @@ const Auth = () => {
             full_name: fullName,
             phone: phone,
             role: role,
+            ...(role === "official" && {
+              official_role: officialRole,
+              district: district,
+              ward: ward,
+              state: state,
+            }),
           },
         },
       });
@@ -47,7 +80,9 @@ const Auth = () => {
 
       toast({
         title: "Success!",
-        description: "Please check your email for a verification link.",
+        description: role === "official" 
+          ? "Your official account has been verified! Please check your email for a verification link."
+          : "Please check your email for a verification link.",
       });
     } catch (error: any) {
       toast({
@@ -213,6 +248,64 @@ const Auth = () => {
                         </SelectContent>
                       </Select>
                     </div>
+                    
+                    {role === "official" && (
+                      <>
+                        <div>
+                          <Label htmlFor="officialRole">Official Role</Label>
+                          <Select value={officialRole} onValueChange={(value: "MLA" | "Ward Officer" | "Panchayat Secretary") => setOfficialRole(value)}>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="MLA">MLA</SelectItem>
+                              <SelectItem value="Ward Officer">Ward Officer</SelectItem>
+                              <SelectItem value="Panchayat Secretary">Panchayat Secretary</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label htmlFor="state">State</Label>
+                          <Input
+                            id="state"
+                            type="text"
+                            value={state}
+                            onChange={(e) => setState(e.target.value)}
+                            placeholder="e.g., Delhi, Maharashtra"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="district">District</Label>
+                          <Input
+                            id="district"
+                            type="text"
+                            value={district}
+                            onChange={(e) => setDistrict(e.target.value)}
+                            placeholder="e.g., Delhi, Mumbai"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="ward">Ward</Label>
+                          <Input
+                            id="ward"
+                            type="text"
+                            value={ward}
+                            onChange={(e) => setWard(e.target.value)}
+                            placeholder="e.g., Ward 1, Bandra East"
+                            required
+                          />
+                        </div>
+                        <div className="p-3 bg-amber-50 border border-amber-200 rounded-md">
+                          <p className="text-sm text-amber-800">
+                            ⚠️ Your details will be verified against our official records. 
+                            Please use your registered government contact information.
+                          </p>
+                        </div>
+                      </>
+                    )}
+                    
                     <Button type="submit" className="w-full" disabled={loading}>
                       {loading ? "Creating account..." : "Create Account"}
                     </Button>
