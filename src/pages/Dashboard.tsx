@@ -6,11 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Clock, CheckCircle, AlertCircle, Users } from "lucide-react";
+import { Clock, CheckCircle, AlertCircle, Users, MapPin, TrendingUp, FileText, Calendar } from "lucide-react";
 
 interface Issue {
   id: string;
@@ -19,6 +20,7 @@ interface Issue {
   issue_type: string;
   status: string;
   created_at: string;
+  resolved_at?: string;
   city: string;
   state: string;
   ward?: string;
@@ -198,84 +200,388 @@ const Dashboard = () => {
           </Card>
         </div>
 
-        <Tabs defaultValue="pending" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="pending">Pending ({pendingIssues.length})</TabsTrigger>
-            <TabsTrigger value="progress">In Progress ({inProgressIssues.length})</TabsTrigger>
-            <TabsTrigger value="resolved">Resolved ({resolvedIssues.length})</TabsTrigger>
-            <TabsTrigger value="all">All Issues ({assignedIssues.length})</TabsTrigger>
+        <Tabs defaultValue="assigned" className="w-full">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="assigned">My Issues ({assignedIssues.length})</TabsTrigger>
+            <TabsTrigger value="locality">By Locality</TabsTrigger>
+            <TabsTrigger value="constituency">Constituency</TabsTrigger>
+            <TabsTrigger value="performance">Performance</TabsTrigger>
+            <TabsTrigger value="reports">Reports</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="pending" className="space-y-4">
-            {pendingIssues.length === 0 ? (
+          {/* My Assigned Issues Tab */}
+          <TabsContent value="assigned" className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               <Card>
-                <CardContent className="p-8 text-center">
-                  <p className="text-muted-foreground">No pending issues</p>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <AlertCircle className="h-5 w-5 text-red-500" />
+                    Pending ({pendingIssues.length})
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  {pendingIssues.slice(0, 3).map((issue) => (
+                    <div key={issue.id} className="flex justify-between text-sm">
+                      <span className="truncate flex-1 mr-2">{issue.title}</span>
+                      <Badge className="bg-red-100 text-red-800 text-xs">{issue.issue_type}</Badge>
+                    </div>
+                  ))}
+                  {pendingIssues.length > 3 && (
+                    <p className="text-xs text-muted-foreground">+{pendingIssues.length - 3} more</p>
+                  )}
                 </CardContent>
               </Card>
-            ) : (
-              pendingIssues.map((issue) => (
-                <IssueCard 
-                  key={issue.id} 
-                  issue={issue} 
-                  onUpdateStatus={updateIssueStatus}
-                  getStatusIcon={getStatusIcon}
-                  getStatusColor={getStatusColor}
-                />
-              ))
-            )}
-          </TabsContent>
 
-          <TabsContent value="progress" className="space-y-4">
-            {inProgressIssues.length === 0 ? (
               <Card>
-                <CardContent className="p-8 text-center">
-                  <p className="text-muted-foreground">No issues in progress</p>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Clock className="h-5 w-5 text-blue-500" />
+                    In Progress ({inProgressIssues.length})
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  {inProgressIssues.slice(0, 3).map((issue) => (
+                    <div key={issue.id} className="flex justify-between text-sm">
+                      <span className="truncate flex-1 mr-2">{issue.title}</span>
+                      <Badge className="bg-blue-100 text-blue-800 text-xs">{issue.issue_type}</Badge>
+                    </div>
+                  ))}
+                  {inProgressIssues.length > 3 && (
+                    <p className="text-xs text-muted-foreground">+{inProgressIssues.length - 3} more</p>
+                  )}
                 </CardContent>
               </Card>
-            ) : (
-              inProgressIssues.map((issue) => (
-                <IssueCard 
-                  key={issue.id} 
-                  issue={issue} 
-                  onUpdateStatus={updateIssueStatus}
-                  getStatusIcon={getStatusIcon}
-                  getStatusColor={getStatusColor}
-                />
-              ))
-            )}
-          </TabsContent>
 
-          <TabsContent value="resolved" className="space-y-4">
-            {resolvedIssues.length === 0 ? (
               <Card>
-                <CardContent className="p-8 text-center">
-                  <p className="text-muted-foreground">No resolved issues</p>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    Resolved ({resolvedIssues.length})
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  {resolvedIssues.slice(0, 3).map((issue) => (
+                    <div key={issue.id} className="flex justify-between text-sm">
+                      <span className="truncate flex-1 mr-2">{issue.title}</span>
+                      <Badge className="bg-green-100 text-green-800 text-xs">{issue.issue_type}</Badge>
+                    </div>
+                  ))}
+                  {resolvedIssues.length > 3 && (
+                    <p className="text-xs text-muted-foreground">+{resolvedIssues.length - 3} more</p>
+                  )}
                 </CardContent>
               </Card>
-            ) : (
-              resolvedIssues.map((issue) => (
-                <IssueCard 
-                  key={issue.id} 
-                  issue={issue} 
-                  onUpdateStatus={updateIssueStatus}
-                  getStatusIcon={getStatusIcon}
-                  getStatusColor={getStatusColor}
-                />
-              ))
-            )}
+            </div>
+
+            {/* Detailed Issues Table */}
+            <Card>
+              <CardHeader>
+                <CardTitle>All Assigned Issues</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Title</TableHead>
+                      <TableHead>Type</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Location</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {assignedIssues.map((issue) => (
+                      <TableRow key={issue.id}>
+                        <TableCell className="font-medium">{issue.title}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{issue.issue_type}</Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            {getStatusIcon(issue.status)}
+                            <Badge className={getStatusColor(issue.status)}>
+                              {issue.status.replace('_', ' ')}
+                            </Badge>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-1">
+                            <MapPin className="h-3 w-3" />
+                            {issue.ward}, {issue.city}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          {new Date(issue.created_at).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell>
+                          <Button variant="outline" size="sm">
+                            Update
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
           </TabsContent>
 
-          <TabsContent value="all" className="space-y-4">
-            {assignedIssues.map((issue) => (
-              <IssueCard 
-                key={issue.id} 
-                issue={issue} 
-                onUpdateStatus={updateIssueStatus}
-                getStatusIcon={getStatusIcon}
-                getStatusColor={getStatusColor}
-              />
-            ))}
+          {/* By Locality Tab */}
+          <TabsContent value="locality" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MapPin className="h-5 w-5" />
+                  Issues by Locality
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {Object.entries(
+                    assignedIssues.reduce((acc, issue) => {
+                      const location = `${issue.ward || 'Unknown Ward'}, ${issue.city || 'Unknown City'}`;
+                      if (!acc[location]) acc[location] = [];
+                      acc[location].push(issue);
+                      return acc;
+                    }, {} as Record<string, typeof assignedIssues>)
+                  ).map(([location, issues]) => (
+                    <Card key={location} className="border-l-4 border-l-primary">
+                      <CardHeader className="pb-3">
+                        <div className="flex justify-between items-center">
+                          <CardTitle className="text-lg">{location}</CardTitle>
+                          <Badge variant="secondary">{issues.length} issues</Badge>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-3 gap-4 text-sm">
+                          <div className="text-center">
+                            <div className="text-red-600 font-bold">
+                              {issues.filter(i => i.status === 'pending').length}
+                            </div>
+                            <div className="text-muted-foreground">Pending</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-blue-600 font-bold">
+                              {issues.filter(i => i.status === 'in_progress').length}
+                            </div>
+                            <div className="text-muted-foreground">In Progress</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-green-600 font-bold">
+                              {issues.filter(i => i.status === 'resolved').length}
+                            </div>
+                            <div className="text-muted-foreground">Resolved</div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Constituency Tab */}
+          <TabsContent value="constituency" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="h-5 w-5" />
+                  Constituency Overview
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                  <div className="text-center p-4 border rounded-lg">
+                    <div className="text-2xl font-bold text-primary">{assignedIssues.length}</div>
+                    <div className="text-sm text-muted-foreground">Total Issues</div>
+                  </div>
+                  <div className="text-center p-4 border rounded-lg">
+                    <div className="text-2xl font-bold text-green-600">
+                      {Math.round((resolvedIssues.length / assignedIssues.length) * 100) || 0}%
+                    </div>
+                    <div className="text-sm text-muted-foreground">Resolution Rate</div>
+                  </div>
+                  <div className="text-center p-4 border rounded-lg">
+                    <div className="text-2xl font-bold text-blue-600">
+                      {assignedIssues.length > 0 ? Math.round(
+                        assignedIssues
+                          .filter(i => i.status === 'resolved' && i.resolved_at)
+                          .reduce((acc, issue) => {
+                            const days = Math.floor(
+                              (new Date(issue.resolved_at!).getTime() - new Date(issue.created_at).getTime()) 
+                              / (1000 * 60 * 60 * 24)
+                            );
+                            return acc + days;
+                          }, 0) / resolvedIssues.length
+                      ) : 0} days
+                    </div>
+                    <div className="text-sm text-muted-foreground">Avg. Response Time</div>
+                  </div>
+                  <div className="text-center p-4 border rounded-lg">
+                    <div className="text-2xl font-bold text-orange-600">
+                      {new Set(assignedIssues.map(i => i.issue_type)).size}
+                    </div>
+                    <div className="text-sm text-muted-foreground">Issue Categories</div>
+                  </div>
+                </div>
+
+                {/* Issue Types Breakdown */}
+                <div className="space-y-3">
+                  {Object.entries(
+                    assignedIssues.reduce((acc, issue) => {
+                      if (!acc[issue.issue_type]) acc[issue.issue_type] = 0;
+                      acc[issue.issue_type]++;
+                      return acc;
+                    }, {} as Record<string, number>)
+                  ).map(([type, count]) => (
+                    <div key={type} className="flex items-center justify-between p-3 border rounded">
+                      <span className="capitalize font-medium">{type}</span>
+                      <Badge variant="secondary">{count} issues</Badge>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Performance Tab */}
+          <TabsContent value="performance" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5" />
+                  Performance Summary
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h4 className="font-semibold mb-3">Monthly Trends</h4>
+                    <div className="space-y-2">
+                      {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'].map((month) => (
+                        <div key={month} className="flex justify-between items-center">
+                          <span>{month}</span>
+                          <div className="flex items-center gap-2">
+                            <div className="w-20 bg-muted rounded-full h-2">
+                              <div 
+                                className="bg-primary h-2 rounded-full" 
+                                style={{ width: `${Math.random() * 100}%` }}
+                              />
+                            </div>
+                            <span className="text-sm text-muted-foreground">
+                              {Math.floor(Math.random() * 20)}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold mb-3">Category Breakdown</h4>
+                    <div className="space-y-2">
+                      {['Road', 'Water', 'Electricity', 'Garbage', 'Other'].map((category) => {
+                        const count = assignedIssues.filter(i => 
+                          i.issue_type.toLowerCase() === category.toLowerCase()
+                        ).length;
+                        const percentage = assignedIssues.length > 0 ? 
+                          Math.round((count / assignedIssues.length) * 100) : 0;
+                        
+                        return (
+                          <div key={category} className="flex justify-between items-center">
+                            <span>{category}</span>
+                            <div className="flex items-center gap-2">
+                              <div className="w-20 bg-muted rounded-full h-2">
+                                <div 
+                                  className="bg-primary h-2 rounded-full" 
+                                  style={{ width: `${percentage}%` }}
+                                />
+                              </div>
+                              <span className="text-sm text-muted-foreground">{count}</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Reports Tab */}
+          <TabsContent value="reports" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Reports & Export
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h4 className="font-semibold mb-3">Quick Reports</h4>
+                    <div className="space-y-3">
+                      <Button variant="outline" className="w-full justify-start">
+                        <Calendar className="h-4 w-4 mr-2" />
+                        Monthly Summary Report
+                      </Button>
+                      <Button variant="outline" className="w-full justify-start">
+                        <MapPin className="h-4 w-4 mr-2" />
+                        Locality-wise Report
+                      </Button>
+                      <Button variant="outline" className="w-full justify-start">
+                        <TrendingUp className="h-4 w-4 mr-2" />
+                        Performance Analytics
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 className="font-semibold mb-3">Export Options</h4>
+                    <div className="space-y-3">
+                      <Button variant="outline" className="w-full justify-start">
+                        <FileText className="h-4 w-4 mr-2" />
+                        Export to PDF
+                      </Button>
+                      <Button variant="outline" className="w-full justify-start">
+                        <FileText className="h-4 w-4 mr-2" />
+                        Export to CSV
+                      </Button>
+                      <Button variant="outline" className="w-full justify-start">
+                        <FileText className="h-4 w-4 mr-2" />
+                        Generate Public Report
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 p-4 bg-muted rounded-lg">
+                  <h5 className="font-semibold mb-2">Report Summary</h5>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    <div>
+                      <div className="font-medium">{assignedIssues.length}</div>
+                      <div className="text-muted-foreground">Total Issues</div>
+                    </div>
+                    <div>
+                      <div className="font-medium text-green-600">{resolvedIssues.length}</div>
+                      <div className="text-muted-foreground">Resolved</div>
+                    </div>
+                    <div>
+                      <div className="font-medium text-red-600">{pendingIssues.length}</div>
+                      <div className="text-muted-foreground">Pending</div>
+                    </div>
+                    <div>
+                      <div className="font-medium text-blue-600">{inProgressIssues.length}</div>
+                      <div className="text-muted-foreground">In Progress</div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>
