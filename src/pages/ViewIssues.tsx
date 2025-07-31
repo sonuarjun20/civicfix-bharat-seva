@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { MapPin, Clock, Filter, Search } from "lucide-react";
+import { MapPin, Clock, Filter, Search, UserX } from "lucide-react";
 import { format } from "date-fns";
 
 interface Issue {
@@ -193,6 +193,10 @@ const ViewIssues = () => {
                   </p>
                   
                   <div className="space-y-2 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-2">
+                      <UserX className="h-4 w-4" />
+                      <span className="font-medium">Reported by: Anonymous</span>
+                    </div>
                     <div className="flex items-center gap-2">
                       <MapPin className="h-4 w-4" />
                       <span>

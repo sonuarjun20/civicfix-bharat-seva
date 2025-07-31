@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 import { Link } from "react-router-dom";
-import { MapPin, Clock, Eye } from "lucide-react";
+import { MapPin, Clock, Eye, UserX } from "lucide-react";
 import { format } from "date-fns";
 
 interface Issue {
@@ -141,6 +141,10 @@ const TrackIssue = () => {
                   </p>
                   
                   <div className="space-y-2 text-sm text-muted-foreground mb-4">
+                    <div className="flex items-center gap-2">
+                      <UserX className="h-4 w-4" />
+                      <span className="font-medium">Reported by: Anonymous</span>
+                    </div>
                     <div className="flex items-center gap-2">
                       <MapPin className="h-4 w-4" />
                       <span>

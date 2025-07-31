@@ -11,7 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/components/AuthProvider";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Clock, CheckCircle, AlertCircle, Users, MapPin, TrendingUp, FileText, Calendar } from "lucide-react";
+import { Clock, CheckCircle, AlertCircle, Users, MapPin, TrendingUp, FileText, Calendar, UserX } from "lucide-react";
 
 interface Issue {
   id: string;
@@ -629,9 +629,15 @@ const IssueCard = ({ issue, onUpdateStatus, getStatusIcon, getStatusColor }: {
       </CardHeader>
       <CardContent>
         <p className="text-muted-foreground mb-4">{issue.description}</p>
-        <p className="text-sm text-muted-foreground">
-          📍 {issue.area && `${issue.area}, `}{issue.city}, {issue.state}
-        </p>
+        <div className="space-y-2 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2">
+            <UserX className="h-4 w-4" />
+            <span className="font-medium">Reported by: Anonymous</span>
+          </div>
+          <p>
+            📍 {issue.area && `${issue.area}, `}{issue.city}, {issue.state}
+          </p>
+        </div>
 
         {showUpdateForm && (
           <div className="mt-4 p-4 border rounded-lg space-y-4">
