@@ -354,9 +354,9 @@ export const IssueReportForm = () => {
 
       if (error) throw error;
 
-      // Send notifications
+      // Send notifications to officials
       try {
-        const { data: notificationResult, error } = await supabase.functions.invoke('send-notifications', {
+        const { data: notificationResult, error } = await supabase.functions.invoke('notify-officials', {
           body: {
             issueId: newIssue.id,
             issueTitle: data.title,
@@ -365,11 +365,8 @@ export const IssueReportForm = () => {
               city: data.city,
               state: data.state,
               ward: data.ward,
-              area: data.area,
-              pincode: data.pincode
-            },
-            assignedOfficialId: selectedOfficialId || matchedOfficial?.user_id,
-            citizenPhone: userProfile?.phone
+              area: data.area
+            }
           }
         });
         
