@@ -46,19 +46,26 @@ export const Header = () => {
             <div className="flex items-center space-x-3">
               {user ? (
                 <>
-                  {userRole === 'official' && (
-                    <Button variant="outline" asChild>
-                      <Link to="/dashboard">Dashboard</Link>
-                    </Button>
-                  )}
-                  {userRole === 'citizen' && (
-                    <Button variant="outline" asChild>
-                      <Link to="/track">My Issues</Link>
-                    </Button>
-                  )}
-                  <Button asChild>
-                    <Link to="/report">Report Issue</Link>
-                  </Button>
+                   {userRole === 'official' && (
+                     <>
+                       <Button variant="outline" asChild>
+                         <Link to="/dashboard">Analytics</Link>
+                       </Button>
+                       <Button asChild>
+                         <Link to="/official-dashboard">Manage Issues</Link>
+                       </Button>
+                     </>
+                   )}
+                   {userRole === 'citizen' && (
+                     <>
+                       <Button variant="outline" asChild>
+                         <Link to="/track">My Issues</Link>
+                       </Button>
+                       <Button asChild>
+                         <Link to="/report">Report Issue</Link>
+                       </Button>
+                     </>
+                   )}
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon">

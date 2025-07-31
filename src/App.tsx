@@ -16,6 +16,7 @@ import Officials from "./pages/Officials";
 import Dashboard from "./pages/Dashboard";
 import About from "./pages/About";
 import OfficialProfile from "./pages/OfficialProfile";
+import OfficialDashboard from "./pages/OfficialDashboard";
 import ReviewIssue from "./pages/ReviewIssue";
 import AdminPanel from "./pages/AdminPanel";
 
@@ -57,6 +58,14 @@ const App = () => (
               element={
                 <ProtectedRoute requireRole="official">
                   <Dashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/official-dashboard" 
+              element={
+                <ProtectedRoute requireRole="official">
+                  <OfficialDashboard />
                 </ProtectedRoute>
               } 
             />
