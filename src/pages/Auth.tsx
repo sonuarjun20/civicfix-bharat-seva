@@ -61,7 +61,6 @@ const Auth = () => {
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/`,
           data: {
             full_name: fullName,
             phone: phone,
@@ -81,8 +80,8 @@ const Auth = () => {
       toast({
         title: "Success!",
         description: role === "official" 
-          ? "Your official account has been verified! Please check your email for a verification link."
-          : "Please check your email for a verification link.",
+          ? "Your official account has been created and verified! You can now sign in."
+          : "Your account has been created successfully! You can now sign in.",
       });
     } catch (error: any) {
       toast({
